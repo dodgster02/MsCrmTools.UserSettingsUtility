@@ -141,18 +141,20 @@ namespace MsCrmTools.UserSettingsUtility.AppCode
 
         public IEnumerable<Entity> RetrieveDashboards()
         {
-            var dashboards = service.RetrieveMultiple(new FetchExpression(@"
-            <fetch>
-              <entity name='systemform' >
-                <attribute name='formid' />
-                <attribute name='name' />
-                <filter>
-                  <condition attribute='uniquename' operator='null' />
-                  <condition attribute='objecttypecode' operator='eq' value='0' />
-                </filter>
-                <order attribute='name' />
-              </entity>
-            </fetch>")).Entities;
+            var queryAppend = detail.OrganizationMajorVersion > 7 ? "<condition attribute = 'uniquename' operator= 'null' />" : "";
+            var query = @"<fetch>
+                            <entity name='systemform'> 
+                                <attribute name='formid' />
+                                <attribute name = 'name' />   
+                                <filter>"
+                                    + queryAppend
+                                    + @"<condition attribute = 'objecttypecode' operator= 'eq' value = '0' />          
+                                </filter>          
+                                <order attribute = 'name' />           
+                            </entity>           
+                       </fetch>";
+
+            var dashboards = service.RetrieveMultiple(new FetchExpression(query)).Entities;
             return dashboards;
         }
     }
